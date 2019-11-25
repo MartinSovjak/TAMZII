@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class MealsFragmentCollectionAdapter extends FragmentStatePagerAdapter {
-
+    String newDate;
 
     public MealsFragmentCollectionAdapter(FragmentManager fm) {
         super(fm);
@@ -28,7 +28,7 @@ public class MealsFragmentCollectionAdapter extends FragmentStatePagerAdapter {
 
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        String newDate = sdf.format(cal.getTime());
+        newDate = sdf.format(cal.getTime());
         bundle.putString("message", newDate);
 
         mealsFragment.setArguments(bundle);
@@ -39,5 +39,9 @@ public class MealsFragmentCollectionAdapter extends FragmentStatePagerAdapter {
     @Override
     public int getCount() {
         return 365;
+    }
+
+    public String getDate(){
+        return newDate;
     }
 }

@@ -7,11 +7,14 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import java.util.ArrayList;
 
 
 /**
@@ -19,8 +22,13 @@ import android.widget.TextView;
  */
 public class MealsFragment extends Fragment {
 
+
+
     private TextView twDate, twCalories;
-    private LinearLayout layoutMeals;
+
+    private ArrayList<String> mNames = new ArrayList<>();
+    private ArrayList<String> mImages = new ArrayList<>();
+
 
 
     public MealsFragment() {
@@ -36,21 +44,43 @@ public class MealsFragment extends Fragment {
 
         twDate = view.findViewById(R.id.txt_display);
         twCalories = view.findViewById(R.id.mealsCalories);
-        layoutMeals = view.findViewById(R.id.linearMeals);
+
         String dateString = getArguments().getString("message");
         twDate.setText(dateString);
 
         String calories = "6400 / 8000";
         twCalories.setText(calories);
 
-        RecyclerView recyclerView = new RecyclerView(getContext());
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        initNames();
+        initRecyclerView(view);
 
-        layoutMeals.addView(recyclerView);
 
         return view;
 
 
     }
+
+    private void initNames(){
+
+        //TODO - Vezmu string s datumem, zavolam databazi a naplnim recyclerView s hodnotami danych zaznamenanych jidel
+        mNames.add("hello");
+        mNames.add("Washington");
+        mNames.add("I want");
+        mNames.add("To help you");
+        mNames.add("Get Famous");
+        mImages.add("Hello aswell");
+    }
+    private void initRecyclerView(View view){
+
+
+        RecyclerView recyclerView = view.findViewById(R.id.recyclerBreakfast);
+        MealsRecyclerAdapter breakfastAdapter = new MealsRecyclerAdapter(getContext(), mNames, mImages);
+        recyclerView.setAdapter(breakfastAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+
+    }
+
+
 
 }
