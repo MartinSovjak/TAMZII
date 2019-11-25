@@ -9,7 +9,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
 
-    tools:context=".Overview">
+    tools:context=".OverviewActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -162,25 +162,25 @@
         </LinearLayout>
 
         <Button
-            android:id="@+id/button4"
+            android:id="@+id/buttonMeals"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Meals" />
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/buttonFood"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Food" />
 
         <Button
-            android:id="@+id/button3"
+            android:id="@+id/buttonStatistics"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Statistics" />
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/buttonSettings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Settings" />
