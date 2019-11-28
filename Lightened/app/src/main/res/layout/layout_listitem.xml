@@ -1,25 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/parent_layout">
 
-    <ImageView
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:id="@+id/image"
-        android:src = "@mipmap/ic_launcher"/>
+
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Hello"
-        android:id="@+id/image_name"
-        android:layout_toRightOf="@+id/image"
+        android:id="@+id/food_name"
         android:textColor="#000"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="30dp"
+        android:layout_weight=".35"
+        android:layout_marginStart="10dp"
         android:textSize="17sp"
         />
-</RelativeLayout>
+
+    <TextView
+        android:id="@+id/food_grams"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight=".14"
+        android:textColor="#000"
+        android:textSize="17sp"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/food_calories"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight=".15"
+        android:textColor="#000"
+        android:textSize="17sp"
+
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/food_sugars"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight=".12"
+        android:textColor="#000"
+        android:textSize="17sp"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/food_fats"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight=".12"
+        android:textColor="#000"
+        android:textSize="17sp"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/food_protein"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight=".12"
+        android:textColor="#000"
+        android:textSize="17sp"
+        android:text="TextView" />
+</LinearLayout>

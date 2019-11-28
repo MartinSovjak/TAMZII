@@ -1,6 +1,7 @@
 package com.example.lightened;
 
 
+import android.database.DataSetObserver;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -22,19 +23,17 @@ import java.util.ArrayList;
  */
 public class MealsFragment extends Fragment {
 
-
-
     private TextView twDate, twCalories;
 
-    private ArrayList<String> mNames = new ArrayList<>();
-    private ArrayList<String> mImages = new ArrayList<>();
+    private ArrayList<Food> Foods = new ArrayList<>();
 
+    MealsRecyclerAdapter breakfastAdapter, morningSnackAdapter;
 
+    private RecyclerView recyclerBreakfast, recyclerMorningSnack;
 
     public MealsFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -48,38 +47,49 @@ public class MealsFragment extends Fragment {
         String dateString = getArguments().getString("message");
         twDate.setText(dateString);
 
-        String calories = "6400 / 8000";
-        twCalories.setText(calories);
-
-        initNames();
+        initNames(dateString);
         initRecyclerView(view);
 
-
         return view;
-
-
     }
 
-    private void initNames(){
+    private void initNames(String dateString){
 
         //TODO - Vezmu string s datumem, zavolam databazi a naplnim recyclerView s hodnotami danych zaznamenanych jidel
-        mNames.add("hello");
-        mNames.add("Washington");
-        mNames.add("I want");
-        mNames.add("To help you");
-        mNames.add("Get Famous");
-        mImages.add("Hello aswell");
+
+        DatabaseHandler db = new DatabaseHandler(getContext());
+        Foods = db.getMealsByDate(dateString);
+
+        countCalories(Foods);
+
+        db.close();
+
+
     }
     private void initRecyclerView(View view){
+        recyclerBreakfast = view.findViewById(R.id.recyclerBreakfast);
+        breakfastAdapter = new MealsRecyclerAdapter(getContext(), Foods, 0, this);
+        recyclerBreakfast.setAdapter(breakfastAdapter);
+        recyclerBreakfast.setLayoutManager(new LinearLayoutManager(getContext()));
 
-
-        RecyclerView recyclerView = view.findViewById(R.id.recyclerBreakfast);
-        MealsRecyclerAdapter breakfastAdapter = new MealsRecyclerAdapter(getContext(), mNames, mImages);
-        recyclerView.setAdapter(breakfastAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-
+        recyclerMorningSnack = view.findViewById(R.id.recyclerMorningSnack);
+        morningSnackAdapter = new MealsRecyclerAdapter(getContext(), Foods, 1, this);
+        recyclerMorningSnack.setAdapter(morningSnackAdapter);
+        recyclerMorningSnack.setLayoutManager(new LinearLayoutManager(getContext()));
     }
+
+    public void countCalories(ArrayList<Food> foods){
+        Foods = foods;
+
+        int cal = 0;
+        for(Food f : Foods){
+            cal += f.calories;
+        }
+        String s = cal + " / 8000";
+       twCalories.setText(s);
+    }
+
+
 
 
 
