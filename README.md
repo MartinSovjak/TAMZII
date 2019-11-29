@@ -9,4 +9,3 @@ If you feel like you've lost track of your life, worry no more, because Lightene
 * Add pictures to your foods (take fresh pictures from your camera or choose one from picture library)
 * Make overviews of food you ate everyday
 * Get statistics
-* Customize daily meals (for example add second dinner)
