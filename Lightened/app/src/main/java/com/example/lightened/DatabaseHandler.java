@@ -15,6 +15,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "lightenedManager";
     private static final String TABLE_FOOD_JOURNAL = "foodjournal";
+    private static final String TABLE_FOOD_DATABASE = "foodjournal";
     private static final String KEY_ID = "id";
     private static final String KEY_IMG = "img";
     private static final String KEY_MEAL = "meal";
@@ -26,7 +27,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_FATS = "fats";
     private static final String KEY_PROTEIN = "protein";
 
-    private static final String TABLE_FOOD_TYPES = "foodtypes";
 
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -47,11 +47,23 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 + KEY_PROTEIN + " REAL"
                 + ")";
         db.execSQL(CREATE_FOODJOURNAL_TABLE);
+
+
+        String CREATE_FOODDATABASE_TABLE = "CREATE TABLE " + TABLE_FOOD_DATABASE + "("
+                + KEY_NAME + " TEXT PRIMARY KEY,"
+                + KEY_IMG + " TEXT,"
+                + KEY_CALORIES + " INTEGER,"
+                + KEY_SUGARS + " REAL,"
+                + KEY_FATS + " REAL,"
+                + KEY_PROTEIN + " REAL"
+                + ")";
+        db.execSQL(CREATE_FOODDATABASE_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_FOOD_JOURNAL);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_FOOD_DATABASE);
         onCreate(db);
     }
 
@@ -71,6 +83,23 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_PROTEIN, food.protein);
 
         db.insert(TABLE_FOOD_JOURNAL, null, values);
+        db.close();
+    }
+
+    public void addToFoodDatabase(FoodDatabaseItem food){
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+
+        values.put(KEY_NAME, food.name);
+        values.put(KEY_IMG, food.img);
+        values.put(KEY_CALORIES, food.calories);
+        values.put(KEY_SUGARS, food.sugars);
+        values.put(KEY_FATS, food.fats);
+        values.put(KEY_PROTEIN, food.protein);
+
+        db.insert(TABLE_FOOD_DATABASE, null, values);
         db.close();
     }
 
@@ -114,6 +143,19 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public int getMealsCount() {
 
         String countQuery = "SELECT * FROM " + TABLE_FOOD_JOURNAL;
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(countQuery, null);
+
+        int count = cursor.getCount();
+        cursor.close();
+        db.close();
+        return count;
+    }
+
+    public int getFoodDatabaseCount() {
+
+        String countQuery = "SELECT * FROM " + TABLE_FOOD_DATABASE;
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.rawQuery(countQuery, null);

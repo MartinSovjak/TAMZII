@@ -42,13 +42,8 @@ public class MealsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
         this.Foods = temp;
         this.mContext = mContext;
         this.typeOfMeal = mealType;
-
         this.fragment = m;
-
-
     }
-
-
 
     @NonNull
     @Override
@@ -88,11 +83,7 @@ public class MealsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
             return TYPE_CONTENT;
     }
 
-    public void CountCalories(){
 
-
-        fragment.countCalories(Foods);
-    }
 
     public class ContentViewHolder extends RecyclerView.ViewHolder{
 
@@ -131,17 +122,11 @@ public class MealsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
                     DatabaseHandler db = new DatabaseHandler(mContext);
                     db.deleteMeal(f);
 
-                    notifyItemRemoved(Foods.indexOf(f));
                     notifyDataSetChanged();
-
-
                     Foods.remove(Foods.indexOf(f));
-                    CountCalories();
                 }
             });
         }
-
-
     }
 
 
@@ -162,7 +147,7 @@ public class MealsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
             parent = itemView.findViewById(R.id.header_layout);
         }
 
-        public void setContent(String mealType){
+        public void setContent(final String mealType){
 
             this.mealType.setText(mealType);
 
@@ -170,20 +155,18 @@ public class MealsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
                 @Override
                 public void onClick(View v) {
 
-
                     DatabaseHandler db = new DatabaseHandler(mContext);
-
                     // TODO - MANAGE INSERTION IN NEW ACTIVITY
-                    Food f = new Food(1, "hello", 0, "28/11/2019", "paprika", 50, 805, 12, 8, 3);
-                    Food f2 = new Food(2, "hello", 0, "28/11/2019", "chleba", 50, 805, 12, 8, 3);
+                    Food f = new Food(1, "hello", typeOfMeal, "28/11/2019", "paprika", 50, 805, 12, 8, 3);
+                    Food f2 = new Food(2, "hello", typeOfMeal, "28/11/2019", "chleba", 50, 805, 12, 8, 3);
 
                     db.addToJournal(f);
                     db.addToJournal(f2);
                     int size = Foods.size();
                     Foods.add(f);
-                    notifyItemInserted(size + 1);
+                    notifyDataSetChanged();
                     Foods.add(f2);
-                    notifyItemInserted(size + 2);
+                    notifyDataSetChanged();
 
                 }
             });

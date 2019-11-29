@@ -31,6 +31,8 @@ public class MealsFragment extends Fragment {
 
     private RecyclerView recyclerBreakfast, recyclerMorningSnack;
 
+    String dateString;
+
     public MealsFragment() {
         // Required empty public constructor
     }
@@ -44,7 +46,7 @@ public class MealsFragment extends Fragment {
         twDate = view.findViewById(R.id.txt_display);
         twCalories = view.findViewById(R.id.mealsCalories);
 
-        String dateString = getArguments().getString("message");
+        dateString = getArguments().getString("message");
         twDate.setText(dateString);
 
         initNames(dateString);
@@ -60,7 +62,7 @@ public class MealsFragment extends Fragment {
         DatabaseHandler db = new DatabaseHandler(getContext());
         Foods = db.getMealsByDate(dateString);
 
-        countCalories(Foods);
+        countCalories();
 
         db.close();
 
@@ -76,10 +78,20 @@ public class MealsFragment extends Fragment {
         morningSnackAdapter = new MealsRecyclerAdapter(getContext(), Foods, 1, this);
         recyclerMorningSnack.setAdapter(morningSnackAdapter);
         recyclerMorningSnack.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        setObservers();
     }
 
-    public void countCalories(ArrayList<Food> foods){
-        Foods = foods;
+    public void countCalories(){
+
+        DatabaseHandler db = new DatabaseHandler(getContext());
+
+        if(recyclerMorningSnack != null && recyclerBreakfast != null) {
+            recyclerBreakfast.invalidate();
+            recyclerMorningSnack.invalidate();
+        }
+
+        Foods = db.getMealsByDate(dateString);
 
         int cal = 0;
         for(Food f : Foods){
@@ -89,7 +101,31 @@ public class MealsFragment extends Fragment {
        twCalories.setText(s);
     }
 
+    private void setObservers(){
+        breakfastAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onChanged() {
+                countCalories();
+            }
 
+            @Override
+            public void onItemRangeChanged(int p, int c) {
+                countCalories();
+            }
+        });
+
+        morningSnackAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onChanged() {
+                countCalories();
+            }
+
+            @Override
+            public void onItemRangeChanged(int p, int c) {
+                countCalories();
+            }
+        });
+    }
 
 
 
