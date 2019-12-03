@@ -1,6 +1,7 @@
 package com.example.lightened;
 
 
+import android.content.Intent;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 
@@ -8,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +23,7 @@ import java.util.ArrayList;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MealsFragment extends Fragment {
+public class MealsFragment extends Fragment implements MealsRecyclerAdapter.OnHeaderListener {
 
     private TextView twDate, twCalories;
 
@@ -73,20 +75,6 @@ public class MealsFragment extends Fragment {
     }
     private void initRecyclerView(View view){
 
-        /*
-        recyclerBreakfast = view.findViewById(R.id.recyclerBreakfast);
-        breakfastAdapter = new MealsRecyclerAdapter(getContext(), Foods, 0, this);
-        recyclerBreakfast.setAdapter(breakfastAdapter);
-        recyclerBreakfast.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        recyclerMorningSnack = view.findViewById(R.id.recyclerMorningSnack);
-        morningSnackAdapter = new MealsRecyclerAdapter(getContext(), Foods, 1, this);
-        recyclerMorningSnack.setAdapter(morningSnackAdapter);
-        recyclerMorningSnack.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        setObservers();
-
-         */
         mealsRecycler = view.findViewById(R.id.recyclerBreakfast);
         mealsAdapter = new MealsRecyclerAdapter(getContext(), Foods, this);
 
@@ -114,10 +102,15 @@ public class MealsFragment extends Fragment {
         }
         String s = cal + " / 8000";
        twCalories.setText(s);
+
+       //TODO - NEW ACTIVITY WITH ADDING FOOD - IMPLEMENT INTERFACE
+       //Intent intent = new Intent(this, AddNewMeal.class);
+       //startActivityForResult(intent, 100);
     }
 
 
-
-
-
+    @Override
+    public void onHeaderClick(int position) {
+        
+    }
 }

@@ -2,8 +2,11 @@ package com.example.lightened;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NavUtils;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
@@ -29,6 +32,24 @@ public class MealsActivity extends AppCompatActivity {
         viewPager.setCurrentItem(adapter.getCount()-1);
 
 
+
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                if (getParentActivityIntent() == null) {
+                    Log.i(TAG, "You have forgotten to specify the parentActivityName in the AndroidManifest!");
+                    onBackPressed();
+                } else {
+                    NavUtils.navigateUpFromSameTask(this);
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 }

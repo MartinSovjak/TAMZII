@@ -34,7 +34,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_FOODJOURNAL_TABLE = "CREATE TABLE " + TABLE_FOOD_JOURNAL + "("
+        String CREATE_FOODJOURNAL_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_FOOD_JOURNAL + "("
                 + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + KEY_IMG + " TEXT,"
                 + KEY_MEAL + " INTEGER,"
@@ -49,7 +49,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL(CREATE_FOODJOURNAL_TABLE);
 
 
-        String CREATE_FOODDATABASE_TABLE = "CREATE TABLE " + TABLE_FOOD_DATABASE + "("
+        String CREATE_FOODDATABASE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_FOOD_DATABASE + "("
                 + KEY_NAME + " TEXT PRIMARY KEY,"
                 + KEY_IMG + " TEXT,"
                 + KEY_CALORIES + " INTEGER,"

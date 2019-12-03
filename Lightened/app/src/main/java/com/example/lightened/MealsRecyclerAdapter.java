@@ -1,6 +1,7 @@
 package com.example.lightened;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -99,7 +100,7 @@ public class MealsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
             ((ContentViewHolder) holder).setContent(Foods.get(position - (countMeals+1)));
         }
         else{
-            ((HeaderViewHolder) holder).setContent(types[countMeals]);
+            ((HeaderViewHolder) holder).setContent(countMeals);
         }
     }
 
@@ -227,6 +228,7 @@ public class MealsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
         TextView mealType;
         Button buttonAdd;
         LinearLayout parent;
+        int type;
 
 
         public HeaderViewHolder(@NonNull View itemView) {
@@ -238,9 +240,9 @@ public class MealsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
             parent = itemView.findViewById(R.id.header_layout);
         }
 
-        public void setContent(final String mealType){
-
-            this.mealType.setText(mealType);
+        public void setContent(final int mealType){
+            this.type = mealType;
+            this.mealType.setText(types[mealType]);
 
             buttonAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -259,12 +261,20 @@ public class MealsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
                    // Foods.add(f2);
                     //notifyDataSetChanged();
 
+                    //mContext.startActivityForResult(intent);
+
+
+
                 }
             });
 
 
 
         }
+    }
+
+    public interface OnHeaderListener{
+        void onHeaderClick(int position);
     }
 
 
