@@ -35,11 +35,13 @@ public class MealsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
     private int[] countFoodsPerMeal = {0, 0, 0, 0, 0};
     private int countMeals;
 
+    private OnHeaderListener headerListener;
+
 
     private static final int TYPE_HEADER = 1;
     private static final int TYPE_CONTENT = 2;
 
-    public MealsRecyclerAdapter( Context mContext, ArrayList<Food> Foods,/* int mealType,*/ MealsFragment m) {
+    public MealsRecyclerAdapter( Context mContext, ArrayList<Food> Foods,MealsFragment m, OnHeaderListener headerListener) {
 
 
 
@@ -48,6 +50,7 @@ public class MealsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
         sortFoods();
         this.mContext = mContext;
         this.fragment = m;
+        this.headerListener = headerListener;
 
     }
 
@@ -87,7 +90,7 @@ public class MealsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
         else{
 
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_headeritem, parent, false);
-            HeaderViewHolder holder = new HeaderViewHolder(view);
+            HeaderViewHolder holder = new HeaderViewHolder(view, headerListener);
 
             return holder;
         }
@@ -223,36 +226,40 @@ public class MealsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
 
 
 
-    public class HeaderViewHolder extends RecyclerView.ViewHolder{
+    public class HeaderViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         TextView mealType;
         Button buttonAdd;
         LinearLayout parent;
         int type;
 
+        OnHeaderListener listener;
 
-        public HeaderViewHolder(@NonNull View itemView) {
+
+        public HeaderViewHolder(@NonNull View itemView, OnHeaderListener listener) {
             super(itemView);
 
             mealType = itemView.findViewById(R.id.header_name);
             buttonAdd = itemView.findViewById(R.id.button_add);
 
             parent = itemView.findViewById(R.id.header_layout);
+            this.listener = listener;
+
+            buttonAdd.setOnClickListener(this);
+
         }
 
         public void setContent(final int mealType){
             this.type = mealType;
             this.mealType.setText(types[mealType]);
 
-            buttonAdd.setOnClickListener(new View.OnClickListener() {
+           /* buttonAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
                     DatabaseHandler db = new DatabaseHandler(mContext);
                     // TODO - MANAGE INSERTION IN NEW ACTIVITY
                    // Food f = new Food(1, "hello", typeOfMeal, "28/11/2019", "paprika", 50, 805, 12, 8, 3);
                    // Food f2 = new Food(2, "hello", typeOfMeal, "28/11/2019", "chleba", 50, 805, 12, 8, 3);
-
                    // db.addToJournal(f);
                    // db.addToJournal(f2);
                    // int size = Foods.size();
@@ -260,21 +267,19 @@ public class MealsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
                    // notifyDataSetChanged();
                    // Foods.add(f2);
                     //notifyDataSetChanged();
-
                     //mContext.startActivityForResult(intent);
-
-
-
                 }
-            });
+            });*/
+        }
 
-
-
+        @Override
+        public void onClick(View v) {
+                listener.onHeaderClick(this.type);
         }
     }
 
     public interface OnHeaderListener{
-        void onHeaderClick(int position);
+        void onHeaderClick(int type);
     }
 
 

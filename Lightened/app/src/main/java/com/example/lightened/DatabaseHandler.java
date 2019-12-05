@@ -5,17 +5,20 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "lightenedManager";
     private static final String TABLE_FOOD_JOURNAL = "foodjournal";
-    private static final String TABLE_FOOD_DATABASE = "foodjournal";
+    private static final String TABLE_FOOD_DATABASE = "fooddatabase";
     private static final String KEY_ID = "id";
     private static final String KEY_IMG = "img";
     private static final String KEY_MEAL = "meal";
@@ -110,7 +113,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String selectQuery = "SELECT * FROM " + TABLE_FOOD_JOURNAL
                 + " WHERE date='" + date + "'";
 
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         if (cursor.moveToFirst()) {
@@ -130,6 +133,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 mealList.add(f);
             } while (cursor.moveToNext());
         }
+
+        cursor.close();
         db.close();
         return mealList;
     }
@@ -164,5 +169,33 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return count;
+    }
+
+    public List<FoodEntry> getFoods(){
+
+        String getAllFoods = "SELECT * FROM " + TABLE_FOOD_DATABASE;
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(getAllFoods, null);
+
+        List<FoodEntry> entries = new ArrayList<>();
+        if (cursor.moveToFirst()) {
+            do {
+                FoodEntry f = new FoodEntry();
+                f.name = cursor.getString(0);
+                f.img = cursor.getString(1);
+                f.calories = Integer.parseInt(cursor.getString(2));
+                f.sugars = Double.parseDouble(cursor.getString(3));
+                f.fats = Double.parseDouble(cursor.getString(4));
+                f.protein = Double.parseDouble(cursor.getString(5));
+
+                entries.add(f);
+
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+        return entries;
     }
 }

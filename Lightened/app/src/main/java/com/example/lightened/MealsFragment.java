@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -24,7 +25,7 @@ import java.util.ArrayList;
  * A simple {@link Fragment} subclass.
  */
 public class MealsFragment extends Fragment implements MealsRecyclerAdapter.OnHeaderListener {
-
+    private static final String TAG = "MealsFragment";
     private TextView twDate, twCalories;
 
     private ArrayList<Food> Foods = new ArrayList<>();
@@ -76,13 +77,10 @@ public class MealsFragment extends Fragment implements MealsRecyclerAdapter.OnHe
     private void initRecyclerView(View view){
 
         mealsRecycler = view.findViewById(R.id.recyclerBreakfast);
-        mealsAdapter = new MealsRecyclerAdapter(getContext(), Foods, this);
+        mealsAdapter = new MealsRecyclerAdapter(getContext(), Foods,this, this);
 
         mealsRecycler.setAdapter(mealsAdapter);
         mealsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
-
-
-
     }
 
     public void countCalories(){
@@ -111,6 +109,10 @@ public class MealsFragment extends Fragment implements MealsRecyclerAdapter.OnHe
 
     @Override
     public void onHeaderClick(int position) {
-        
+       Intent intent = new Intent(getContext(), AddNewMealActivity.class);
+       intent.putExtra("type", position);
+       intent.putExtra("date", dateString);
+       startActivity(intent);
+
     }
 }
