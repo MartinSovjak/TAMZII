@@ -39,7 +39,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String CREATE_FOODJOURNAL_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_FOOD_JOURNAL + "("
                 + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + KEY_IMG + " TEXT,"
                 + KEY_MEAL + " INTEGER,"
                 + KEY_DATE + " TEXT,"
                 + KEY_NAME + " TEXT,"
@@ -75,7 +74,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         ContentValues values = new ContentValues();
 
-        values.put(KEY_IMG, food.img);
         values.put(KEY_MEAL, food.meal);
         values.put(KEY_DATE, food.date);
         values.put(KEY_NAME, food.name);
@@ -120,15 +118,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             do {
                 Food f = new Food();
                 f.id = Integer.parseInt(cursor.getString(0));
-                f.img = cursor.getString(1);
-                f.meal = Integer.parseInt(cursor.getString(2));
-                f.date = cursor.getString(3);
-                f.name = cursor.getString(4);
-                f.grams = Integer.parseInt(cursor.getString(5));
-                f.calories = Integer.parseInt(cursor.getString(6));
-                f.sugars = Double.parseDouble(cursor.getString(7));
-                f.fats = Double.parseDouble(cursor.getString(8));
-                f.protein = Double.parseDouble(cursor.getString(9));
+
+                f.meal = Integer.parseInt(cursor.getString(1));
+                f.date = cursor.getString(2);
+                f.name = cursor.getString(3);
+                f.grams = Integer.parseInt(cursor.getString(4));
+                f.calories = Integer.parseInt(cursor.getString(5));
+                f.sugars = Double.parseDouble(cursor.getString(6));
+                f.fats = Double.parseDouble(cursor.getString(7));
+                f.protein = Double.parseDouble(cursor.getString(8));
 
                 mealList.add(f);
             } while (cursor.moveToNext());
@@ -197,5 +195,39 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return entries;
+    }
+
+    public boolean foodExists(String name){
+
+        String getFoodQuery = "SELECT * FROM " + TABLE_FOOD_DATABASE + " WHERE " + KEY_NAME + " = '" + name + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(getFoodQuery, null);
+
+
+        int count = cursor.getCount();
+
+
+        cursor.close();
+        db.close();
+
+        if(count > 0)
+            return true;
+        else {
+            return false;
+        }
+    }
+
+    public int getLastId(){
+        String query = "SELECT MAX(" + KEY_ID + ") as id FROM " + TABLE_FOOD_JOURNAL;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        int id = 0;
+        while(cursor.moveToNext()){
+            id = cursor.getInt(0);
+        }
+
+        return id;
     }
 }

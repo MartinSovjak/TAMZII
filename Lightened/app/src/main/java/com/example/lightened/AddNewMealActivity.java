@@ -2,9 +2,11 @@ package com.example.lightened;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
@@ -23,6 +25,11 @@ public class AddNewMealActivity extends AppCompatActivity implements View.OnClic
     private int calories, grams;
     private double sugars,fats,protein;
     private String name;
+    int type;
+    String date;
+
+    private static int GET_MEAL_INFO = 10;
+    private static int NO_MEAL_INFO = 400;
 
     EditText Name,Grams,Calories,Fats,Sugars,Protein;
 
@@ -31,8 +38,8 @@ public class AddNewMealActivity extends AppCompatActivity implements View.OnClic
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_new_meal);
 
-        int type = getIntent().getExtras().getInt("type", -1);
-        String date = getIntent().getExtras().getString("date", null);
+        type = getIntent().getExtras().getInt("type", -1);
+        date = getIntent().getExtras().getString("date", null);
 
         fillAutocompleteList();
 
@@ -157,16 +164,31 @@ public class AddNewMealActivity extends AppCompatActivity implements View.OnClic
 
     public void addMeal(){
 
+        if(TextUtils.isEmpty(Name.getText()) || TextUtils.isEmpty(Sugars.getText()) || TextUtils.isEmpty(Fats.getText()) ||
+                TextUtils.isEmpty(Protein.getText()) || TextUtils.isEmpty(Grams.getText()) || TextUtils.isEmpty(Calories.getText())){
+
+            return;
+        }
+            Intent intent = new Intent();
+            intent.putExtra("name", Name.getText().toString());
+            intent.putExtra("grams", Integer.parseInt(Grams.getText().toString()) );
+            intent.putExtra("calories", Integer.parseInt(Calories.getText().toString()));
+            intent.putExtra("sugars", Double.parseDouble(Sugars.getText().toString()));
+            intent.putExtra("fats", Double.parseDouble(Fats.getText().toString()));
+            intent.putExtra("protein", Double.parseDouble(Protein.getText().toString()));
+            intent.putExtra("type", type);
+            intent.putExtra("date", date);
+
+            setResult(GET_MEAL_INFO, intent);
+            finish();
     }
 
     public void fillAutocompleteList(){
             foodEntryList = new ArrayList<>();
 
-          //  DatabaseHandler db = new DatabaseHandler(this);
-            //foodEntryList = db.getFoods();
-        // TODO - DATABASE CONNECTION
-        foodEntryList.add(new FoodEntry("rohlik","img", 500, 30, 20 , 10));
-        foodEntryList.add(new FoodEntry("chlebik","img", 400, 40, 50 , 60));
+            DatabaseHandler db = new DatabaseHandler(this);
+            foodEntryList = db.getFoods();
+
     }
 
     public void countValues(){
@@ -177,7 +199,7 @@ public class AddNewMealActivity extends AppCompatActivity implements View.OnClic
         double finalFats = fats * grams/100;
 
 
-        Calories.setText(""+finalCalories);
+        Calories.setText(""+Math.round(finalCalories));
         Sugars.setText(""+finalSugars);
         Protein.setText(""+finalProtein);
         Fats.setText(""+finalFats);

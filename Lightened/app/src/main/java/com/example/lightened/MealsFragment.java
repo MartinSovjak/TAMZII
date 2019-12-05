@@ -19,25 +19,30 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MealsFragment extends Fragment implements MealsRecyclerAdapter.OnHeaderListener {
+public class MealsFragment extends Fragment implements MealsRecyclerAdapter.OnHeaderListener, MealsRecyclerAdapter.OnItemListener {
     private static final String TAG = "MealsFragment";
     private TextView twDate, twCalories;
 
     private ArrayList<Food> Foods = new ArrayList<>();
+    private int[] countFoodsPerMeal = {0, 0, 0, 0, 0};
     /*
     MealsRecyclerAdapter breakfastAdapter, morningSnackAdapter;
 
     private RecyclerView recyclerBreakfast, recyclerMorningSnack;
 */
-
+    private static int GET_MEAL_INFO = 10;
+    private static int NO_MEAL_INFO = 400;
     MealsRecyclerAdapter mealsAdapter;
     private RecyclerView mealsRecycler;
     String dateString;
+    int selectedMeal;
 
     public MealsFragment() {
         // Required empty public constructor
@@ -77,7 +82,8 @@ public class MealsFragment extends Fragment implements MealsRecyclerAdapter.OnHe
     private void initRecyclerView(View view){
 
         mealsRecycler = view.findViewById(R.id.recyclerBreakfast);
-        mealsAdapter = new MealsRecyclerAdapter(getContext(), Foods,this, this);
+        mealsAdapter = new MealsRecyclerAdapter(getContext(), Foods,this, this, this);
+        setCountFoodsPerMeal();
 
         mealsRecycler.setAdapter(mealsAdapter);
         mealsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -101,18 +107,106 @@ public class MealsFragment extends Fragment implements MealsRecyclerAdapter.OnHe
         String s = cal + " / 8000";
        twCalories.setText(s);
 
-       //TODO - NEW ACTIVITY WITH ADDING FOOD - IMPLEMENT INTERFACE
+
        //Intent intent = new Intent(this, AddNewMeal.class);
        //startActivityForResult(intent, 100);
     }
 
 
     @Override
-    public void onHeaderClick(int position) {
+    public void onHeaderClick(int meal) {
        Intent intent = new Intent(getContext(), AddNewMealActivity.class);
-       intent.putExtra("type", position);
+       intent.putExtra("type", meal);
        intent.putExtra("date", dateString);
-       startActivity(intent);
 
+
+       startActivityForResult(intent, GET_MEAL_INFO);
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        try{
+            if(requestCode == NO_MEAL_INFO){
+                return;
+            }
+            if(requestCode == GET_MEAL_INFO){
+                String name = data.getStringExtra("name");
+                int grams = data.getIntExtra("grams", -1);
+                int calories = data.getIntExtra("calories", -1);
+                double sugars = data.getDoubleExtra("sugars", -1);
+                double fats = data.getDoubleExtra("fats", -1);
+                double protein = data.getDoubleExtra("protein", -1);
+                int type = data.getIntExtra("type", -1);
+                String date = data.getStringExtra("date");
+
+                Food f = new Food();
+                f.name = name;
+                f.meal = type;
+                f.date = date;
+                f.grams = grams;
+                f.calories = calories;
+                f.sugars = sugars;
+                f.fats = fats;
+                f.protein = protein;
+
+                try {
+                    DatabaseHandler db = new DatabaseHandler(getContext());
+                    db.addToJournal(f);
+
+                    f.id = db.getLastId();
+
+                    Foods.add(f);
+                    sortFoods();
+                    setCountFoodsPerMeal();
+                    mealsAdapter.notifyDataSetChanged();
+
+                }
+                catch (Exception e){
+                    Log.e(TAG, "onActivityResult: ", e );
+                }
+            }
+        }
+        catch (Exception e){
+
+        }
+    }
+
+    public void sortFoods(){
+        Collections.sort(Foods, new Comparator<Food>(){
+            public int compare(Food f1, Food f2){
+                return f1.meal - f2.meal;
+            }
+        });
+    }
+
+    public void setCountFoodsPerMeal(){
+
+        for(int i = 0; i < 5; i++){
+            int count = 0;
+
+            for(Food f : Foods){
+                if (f.meal == i){
+                    count++;
+                }
+            }
+            this.countFoodsPerMeal[i] = count;
+        }
+        mealsAdapter.setCountFoodsPerMeal(this.countFoodsPerMeal);
+    }
+
+    @Override
+    public void onItemClick(int position, int type) {
+        int finalpos = position - (type+1);
+        Food f = Foods.get(finalpos);
+        Foods.remove(finalpos);
+
+        DatabaseHandler db = new DatabaseHandler(getContext());
+        db.deleteMeal(f);
+
+        mealsAdapter.notifyDataSetChanged();
+        setCountFoodsPerMeal();
     }
 }

@@ -2,7 +2,6 @@ package com.example.lightened;
 
 public class Food {
     public int id;
-    public String img;
     public int meal;
     public String date;
     public String name;
@@ -13,9 +12,8 @@ public class Food {
     public double protein;
 
 
-    public Food(int id, String img, int meal, String date, String name, int grams, int calories, double sugars, double fats, double protein) {
+    public Food(int id, int meal, String date, String name, int grams, int calories, double sugars, double fats, double protein) {
         this.id = id;
-        this.img = img;
         this.meal = meal;
         this.date = date;
         this.name = name;

@@ -2,12 +2,18 @@ package com.example.lightened;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageDecoder;
+import android.graphics.Matrix;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -19,25 +25,28 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class AddFoodActivity extends AppCompatActivity implements View.OnClickListener  {
 
     Button takePicture, getFromLibrary, addFood;
     EditText name, calories, sugars, fats, protein;
     Bitmap imgBitmap;
-    private static final int PICK_PHOTO_FROM_GALLERY = 0;
+    String currentPhotoPath;
+    ImageView img;
+    private static final int TAKE_PHOTO = 200;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_food);
 
         takePicture = findViewById(R.id.bTake);
-        getFromLibrary = findViewById(R.id.bGet);
         addFood = findViewById(R.id.bAdd);
 
         takePicture.setOnClickListener(this);
-        getFromLibrary.setOnClickListener(this);
         addFood.setOnClickListener(this);
 
         name = findViewById(R.id.etName);
@@ -45,12 +54,20 @@ public class AddFoodActivity extends AppCompatActivity implements View.OnClickLi
         sugars = findViewById(R.id.etSugars);
         fats = findViewById(R.id.etFats);
         protein = findViewById(R.id.etProtein);
+
+        img = findViewById(R.id.imgFinal);
+
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+
+        if (requestCode == TAKE_PHOTO && resultCode == RESULT_OK) {
+                setPicture();
+        }
+        /*
         if(requestCode == PICK_PHOTO_FROM_GALLERY && resultCode == Activity.RESULT_OK){
             if(data == null){
                 Toast.makeText(this, "You didn't choose a picture", Toast.LENGTH_SHORT).show();
@@ -69,12 +86,12 @@ public class AddFoodActivity extends AppCompatActivity implements View.OnClickLi
                     ImageView view = findViewById(R.id.imgFinal);
                     view.setImageBitmap(myBitmap);
                 }
-                */
+
             } catch (FileNotFoundException e) {
                 Toast.makeText(this, "File not found.", Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
             }
-        }
+        }*/
     }
 
     @Override
@@ -84,9 +101,7 @@ public class AddFoodActivity extends AppCompatActivity implements View.OnClickLi
             case R.id.bTake:
                 getImgFromCamera();
                 break;
-            case R.id.bGet:
-                getImgFromLibrary();
-                break;
+
             case R.id.bAdd:
                 sendItemToDatabase();
                 break;
@@ -95,21 +110,44 @@ public class AddFoodActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     public void getImgFromCamera(){
+
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+
+            }
+
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this,"com.example.lightened.fileprovider", photoFile);
+
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+
+                startActivityForResult(takePictureIntent, TAKE_PHOTO);
+            }
+        }
+        /*
         File imgFile = new  File(getFilesDir() + name.getText().toString());
         if(imgFile.exists()){
             Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
             ImageView view = findViewById(R.id.imgFinal);
             view.setImageBitmap(myBitmap);
+            }
+         */
     }
 
-    }
 
+    /*
     public void getImgFromLibrary(){
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
         startActivityForResult(intent, PICK_PHOTO_FROM_GALLERY);
     }
-
+*/
     public void sendItemToDatabase(){
         FileOutputStream out;
         if(TextUtils.isEmpty(calories.getText()) || TextUtils.isEmpty(sugars.getText()) || TextUtils.isEmpty(fats.getText()) ||
@@ -119,21 +157,23 @@ public class AddFoodActivity extends AppCompatActivity implements View.OnClickLi
         }
         // TODO - UNABLE TO MATCH FILES
         String foodName = name.getText().toString();
-        String foodImg = name.getText().toString() + ".png";
+        String foodImg = currentPhotoPath;
         int foodCalories = Integer.parseInt(calories.getText().toString());
         double foodSugars = Double.parseDouble(sugars.getText().toString());
         double foodFats = Double.parseDouble(fats.getText().toString());
         double foodProtein = Double.parseDouble(protein.getText().toString());
 
         try {
-            out = new FileOutputStream(getFilesDir() + name.getText().toString());
-            imgBitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
-
             FoodDatabaseItem food = new FoodDatabaseItem(foodName, foodImg, foodCalories, foodSugars, foodFats, foodProtein);
 
             DatabaseHandler db = new DatabaseHandler(this);
-            // TODO - CHECK IF FOOD EXISTS - NO DUPLICATES
-            //db.addToFoodDatabase(food);
+
+            if(db.foodExists(foodName)) {
+                Toast.makeText(this, "food with this name already exists.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            db.addToFoodDatabase(food);
             int count = db.getFoodDatabaseCount();
             Toast.makeText(this, "" + count, Toast.LENGTH_SHORT).show();
 
@@ -141,6 +181,46 @@ public class AddFoodActivity extends AppCompatActivity implements View.OnClickLi
             Toast.makeText(this, "Unable to save a picture or insert into database.", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
+    }
+
+
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        currentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
+    private void setPicture(){
+        int targetW = img.getWidth();
+        int targetH = img.getHeight();
+
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+
+        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+        bmOptions.inPurgeable = true;
+
+        Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
+        img.setImageBitmap(bitmap);
+
+
     }
 }
 

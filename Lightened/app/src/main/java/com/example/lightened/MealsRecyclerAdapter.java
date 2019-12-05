@@ -36,46 +36,30 @@ public class MealsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
     private int countMeals;
 
     private OnHeaderListener headerListener;
+    private OnItemListener onItemListener;
 
 
     private static final int TYPE_HEADER = 1;
     private static final int TYPE_CONTENT = 2;
 
-    public MealsRecyclerAdapter( Context mContext, ArrayList<Food> Foods,MealsFragment m, OnHeaderListener headerListener) {
+    public MealsRecyclerAdapter( Context mContext, ArrayList<Food> Foods,MealsFragment m, OnHeaderListener headerListener, OnItemListener onItemListener) {
 
 
 
         this.Foods = Foods;
-        setCountFoodsPerMeal();
-        sortFoods();
+
         this.mContext = mContext;
         this.fragment = m;
         this.headerListener = headerListener;
+        this.onItemListener = onItemListener;
 
     }
 
-    public void setCountFoodsPerMeal(){
-
-        for(int i = 0; i < 5; i++){
-            int count = 0;
-
-            for(Food f : Foods){
-                if (f.meal == i){
-                    count++;
-                }
-            }
-            this.countFoodsPerMeal[i] = count;
-        }
+    public void setCountFoodsPerMeal(int[] mealCounts){
+        this.countFoodsPerMeal = mealCounts;
 
     }
 
-    public void sortFoods(){
-        Collections.sort(Foods, new Comparator<Food>(){
-            public int compare(Food f1, Food f2){
-                return f2.meal - f1.meal;
-            }
-        });
-    }
 
     @NonNull
     @Override
@@ -83,7 +67,7 @@ public class MealsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
         //Log.d(TAG, "onCreateViewHolder: called.");
         if(viewType == TYPE_CONTENT) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_listitem, parent, false);
-            ContentViewHolder holder = new ContentViewHolder(view);
+            ContentViewHolder holder = new ContentViewHolder(view, onItemListener);
 
             return holder;
         }
@@ -180,13 +164,14 @@ public class MealsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
 
 
 
-    public class ContentViewHolder extends RecyclerView.ViewHolder{
+    public class ContentViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener{
 
         TextView name, grams, calories, sugars, fats, protein;
 
         LinearLayout parent;
-
-        public ContentViewHolder(@NonNull View itemView) {
+        int meal;
+        private OnItemListener onItemListener;
+        public ContentViewHolder(@NonNull View itemView, OnItemListener onItemListener) {
             super(itemView);
 
             name = itemView.findViewById(R.id.food_name);
@@ -197,6 +182,11 @@ public class MealsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
             protein = itemView.findViewById(R.id.food_protein);
 
             parent = itemView.findViewById(R.id.parent_layout);
+
+
+            this.onItemListener = onItemListener;
+
+            itemView.setOnLongClickListener(this);
         }
 
         public void setContent(final Food f){
@@ -208,8 +198,8 @@ public class MealsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
             this.fats.setText("" + f.fats);
             this.protein.setText("" + f.protein);
 
-
-            parent.setOnClickListener(new View.OnClickListener() {
+            this.meal = f.meal;
+            /*parent.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Log.d(TAG, "onClick: clicked on: " + f.name);
@@ -221,6 +211,17 @@ public class MealsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
                     //Foods.remove(Foods.indexOf(f));
                 }
             });
+
+             */
+        }
+
+
+
+        @Override
+        public boolean onLongClick(View v) {
+            onItemListener.onItemClick(getAdapterPosition(), this.meal);
+
+            return true;
         }
     }
 
@@ -246,7 +247,6 @@ public class MealsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
             this.listener = listener;
 
             buttonAdd.setOnClickListener(this);
-
         }
 
         public void setContent(final int mealType){
@@ -280,6 +280,10 @@ public class MealsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     public interface OnHeaderListener{
         void onHeaderClick(int type);
+    }
+
+    public interface OnItemListener{
+        void onItemClick(int position, int type);
     }
 
 

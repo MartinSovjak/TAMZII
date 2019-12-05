@@ -3,6 +3,8 @@ package com.example.lightened;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +17,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,8 +71,10 @@ public class SearchArrayAdapter extends ArrayAdapter<FoodEntry> {
             searchProtein.setText(""+foodEntry.protein);
 
             //TODO - NOT READY FOR GETTING IMAGES
-            Bitmap icon = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.rohlik);
-            foodIcon.setImageBitmap(icon);
+
+
+            setPicture();
+
         }
 
         return convertView;
@@ -110,62 +116,32 @@ public class SearchArrayAdapter extends ArrayAdapter<FoodEntry> {
             return ((FoodEntry) resultValue).name;
         }
     };
-/*
-    @Override
-    public int getCount()
-    {
-        return this.foodEntryList.size();
+
+    private void setPicture(){
+
+        final float scale = getContext().getResources().getDisplayMetrics().density;
+        int targetW = (int) (80 * scale + 0.5f);
+        int targetH = (int) (80 * scale + 0.5f);
+
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+
+
+        BitmapFactory.decodeFile(foodEntry.img, bmOptions);
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+
+        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+
+        Bitmap bitmap = BitmapFactory.decodeFile(foodEntry.img, bmOptions);
+        foodIcon.setImageBitmap(bitmap);
+
+
     }
 
-    @Override
-    public FoodEntry getItem(int position)
-    {
-        foodEntry = this.foodEntryList.get(position);
 
-        return foodEntry;
-    }
-
-    @NonNull
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent)
-    {
-        View row = convertView;
-        LayoutInflater inflater = LayoutInflater.from(getContext());
-
-        if (row == null)
-        {
-            row = inflater.inflate(R.layout.fragment_search, parent, false);
-        }
-
-        foodEntry = this.foodEntryList.get(position);
-
-        searchName = (TextView) row.findViewById(R.id.searchName);
-        searchName.setText(foodEntry.name);
-
-        searchCalories = (TextView) row.findViewById(R.id.searchCalories);
-        searchCalories.setText(foodEntry.calories);
-
-        searchSugars = (TextView) row.findViewById(R.id.searchSugars);
-        searchSugars.setText(""+foodEntry.sugars);
-
-        searchFats = (TextView) row.findViewById(R.id.searchFats);
-        searchFats.setText(""+foodEntry.fats);
-
-        searchProtein = (TextView) row.findViewById(R.id.searchProtein);
-        searchProtein.setText(""+foodEntry.protein);
-
-
-        // Get a reference to ImageView holder
-        foodIcon = (ImageView) row.findViewById(R.id.searchImg);
-
-        String img = foodEntry.img;
-        //TODO - NOT READY FOR GETTING IMAGES
-        Bitmap icon = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.rohlik);
-        foodIcon.setImageBitmap(icon);
-
-
-        return row;
-    }
-    */
 
 }
