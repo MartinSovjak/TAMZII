@@ -2,6 +2,7 @@ package com.example.lightened;
 
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 
@@ -21,6 +22,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+
+import static android.content.Context.MODE_PRIVATE;
 
 
 /**
@@ -83,28 +86,25 @@ public class MealsFragment extends Fragment implements MealsRecyclerAdapter.OnHe
 
         mealsRecycler = view.findViewById(R.id.recyclerBreakfast);
         mealsAdapter = new MealsRecyclerAdapter(getContext(), Foods,this, this, this);
-        setCountFoodsPerMeal();
 
+        setCountFoodsPerMeal();
         mealsRecycler.setAdapter(mealsAdapter);
         mealsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
     public void countCalories(){
 
-        DatabaseHandler db = new DatabaseHandler(getContext());
-
-        if(mealsRecycler != null) {
-            mealsRecycler.invalidate();
-
-        }
-
-        Foods = db.getMealsByDate(dateString);
 
         int cal = 0;
         for(Food f : Foods){
             cal += f.calories;
         }
-        String s = cal + " / 8000";
+
+        SharedPreferences pref = getActivity().getApplicationContext().getSharedPreferences("Settings", MODE_PRIVATE);
+
+        int finalCal = pref.getInt("calories", 8400);
+
+        String s = cal + " / " + finalCal;
        twCalories.setText(s);
 
 
@@ -161,6 +161,7 @@ public class MealsFragment extends Fragment implements MealsRecyclerAdapter.OnHe
                     Foods.add(f);
                     sortFoods();
                     setCountFoodsPerMeal();
+                    countCalories();
                     mealsAdapter.notifyDataSetChanged();
 
                 }
@@ -207,6 +208,7 @@ public class MealsFragment extends Fragment implements MealsRecyclerAdapter.OnHe
         db.deleteMeal(f);
 
         mealsAdapter.notifyDataSetChanged();
+        countCalories();
         setCountFoodsPerMeal();
     }
 }

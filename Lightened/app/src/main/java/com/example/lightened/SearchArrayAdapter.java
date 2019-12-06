@@ -109,6 +109,7 @@ public class SearchArrayAdapter extends ArrayAdapter<FoodEntry> {
             clear();
             addAll((List)results.values);
             notifyDataSetChanged();
+
         }
 
         @Override
