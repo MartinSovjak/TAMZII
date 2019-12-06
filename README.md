@@ -4,8 +4,9 @@ If you feel like you've lost track of your life, worry no more, because Lightene
 
 * Add new foods
 * Edit existing foods
-* Local storage when adding/editing foods
+* Local storage for settings
 * Database stored items for long term storing
-* Add pictures to your foods (take fresh pictures from your camera or choose one from picture library)
-* Make overviews of food you ate everyday
-* Get statistics
+* Take picture of your food and add that image to your currently created food.
+* Make overviews of meals you ate everyday
+* Graphs of what you've consumed the last day
+* Autocomplete for faster searching
